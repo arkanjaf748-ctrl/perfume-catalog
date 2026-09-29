@@ -12,6 +12,9 @@ const firebaseConfig = {
     measurementId: "G-JERX65M8W1"
 };
 
+// ImgBB API Configuration
+const IMGBB_API_KEY = "18ac6ddff9fe96cb1adc2a85566f0f83";
+
 // Initialize Firebase & Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -104,6 +107,65 @@ if (addForm) {
         const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
         if (submitBtn) {
             submitBtn.disabled = true;
+        }
+
+        const fileInput = document.getElementById('perfume-image-file');
+        const urlInput = document.getElementById('perfume-image-url') || document.getElementById('image_url');
+        const file = fileInput?.files?.[0];
+        const imageUrlVal = urlInput?.value.trim() || '';
+
+        let finalImageUrl = imageUrlVal;
+
+        // 1. If a file is selected, upload it to ImgBB API
+        if (file) {
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin ml-2"></i> لەبارکردنی وێنە بۆ ImgBB...';
+            }
+
+            if (IMGBB_API_KEY === "کۆدەکەی_خۆت_لێرە_دابنێ" || !IMGBB_API_KEY) {
+                alert("تکایە کلیلی API ی ImgBB لە دێڕی ١٧ی فایلی js/admin.js لە گۆڕاوی IMGBB_API_KEY دابنێ بۆ ئەوەی وێنەکان بار بکرێن.");
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error?.message || 'کێشەیەک لە بارکردنی وێنە بۆ ImgBB ڕوویدا');
+                }
+
+                // Extract direct image URL from JSON response
+                finalImageUrl = result.data.url;
+            } catch (imgbbError) {
+                console.error("Error uploading to ImgBB:", imgbbError);
+                alert("کێشەیەک ڕوویدا لە کاتی بارکردنی وێنە بۆ ImgBB: " + (imgbbError.message || 'Error'));
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+                return;
+            }
+        }
+
+        // 2. Fallback to placeholder if no image file and no URL was provided
+        if (!finalImageUrl) {
+            finalImageUrl = 'assets/images/placeholder.png';
+        }
+
+        // UI feedback during Firestore saving
+        if (submitBtn) {
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-2"></i> لە پاشەکەوتکردندایە...';
         }
 
@@ -126,7 +188,7 @@ if (addForm) {
                 middle: middleNotesVal,
                 base: baseNotesVal
             },
-            image: document.getElementById('image_url').value.trim() || 'assets/images/placeholder.png',
+            image: finalImageUrl,
             longevity: 5,
             sillage: 5,
             in_stock: true,
