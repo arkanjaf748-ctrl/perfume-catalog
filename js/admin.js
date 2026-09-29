@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -19,8 +19,75 @@ const IMGBB_API_KEY = "18ac6ddff9fe96cb1adc2a85566f0f83";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// DOM Elements
+const authGuard = document.getElementById('admin-auth-guard');
+const mainDashboard = document.getElementById('admin-main-dashboard');
+const guardLoginForm = document.getElementById('admin-guard-login-form');
+const guardError = document.getElementById('guard-error');
+const adminLogoutBtn = document.getElementById('admin-logout-btn');
+const adminRefreshBtn = document.getElementById('admin-refresh-btn');
+
 const listContainer = document.getElementById('admin-products-list');
 const addForm = document.getElementById('add-perfume-form');
+
+// Edit Modal Elements
+const editModal = document.getElementById('admin-edit-modal');
+const editForm = document.getElementById('admin-edit-form');
+const closeEditBtn = document.getElementById('close-admin-edit-btn');
+const editCancelBtn = document.getElementById('admin-edit-cancel-btn');
+
+let adminProductsCache = [];
+
+// Authentication Checker
+function isAdmin() {
+    return localStorage.getItem('isAdminLoggedIn') === 'true';
+}
+
+// Check & Apply Auth Guard
+function checkAdminAuth() {
+    if (isAdmin()) {
+        if (authGuard) authGuard.classList.add('hidden');
+        if (mainDashboard) mainDashboard.classList.remove('hidden');
+        loadAdminProducts();
+    } else {
+        if (authGuard) authGuard.classList.remove('hidden');
+        if (mainDashboard) mainDashboard.classList.add('hidden');
+    }
+}
+
+// Setup Auth Guard Events
+function setupAuthGuard() {
+    if (guardLoginForm) {
+        guardLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('guard-username')?.value.trim();
+            const password = document.getElementById('guard-password')?.value;
+
+            // Strict credentials check
+            if (username === 'arkan' && password === 'arkan123') {
+                localStorage.setItem('isAdminLoggedIn', 'true');
+                if (guardError) guardError.classList.add('hidden');
+                guardLoginForm.reset();
+                checkAdminAuth();
+            } else {
+                if (guardError) guardError.classList.remove('hidden');
+            }
+        });
+    }
+
+    if (adminLogoutBtn) {
+        adminLogoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('isAdminLoggedIn');
+            checkAdminAuth();
+        });
+    }
+
+    if (adminRefreshBtn) {
+        adminRefreshBtn.addEventListener('click', () => {
+            loadAdminProducts();
+        });
+    }
+}
 
 // Fetch & Render Products in Admin Panel
 export async function loadAdminProducts() {
@@ -36,6 +103,7 @@ export async function loadAdminProducts() {
     try {
         const querySnapshot = await getDocs(collection(db, "perfumes"));
         listContainer.innerHTML = '';
+        adminProductsCache = [];
 
         if (querySnapshot.empty) {
             listContainer.innerHTML = `
@@ -49,12 +117,13 @@ export async function loadAdminProducts() {
         querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
             const id = docSnap.id;
+            adminProductsCache.push({ id, ...data });
 
             const retailPrice = data.price_retail_100ml ?? data.price_retail ?? data.price ?? 0;
             const genderLabel = data.gender === 'men' ? 'پیاوانە' : data.gender === 'women' ? 'ژنانە' : 'هاوبەش';
 
             const itemHtml = `
-                <div class="py-3 flex items-center justify-between gap-4 border-b border-slate-800/60 last:border-0 hover:bg-slate-950/40 px-2 rounded-xl transition">
+                <div class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/60 last:border-0 hover:bg-slate-950/40 px-2 rounded-xl transition">
                     <div class="flex items-center gap-3">
                         <img src="${data.image || 'assets/images/placeholder.png'}" 
                              class="w-12 h-12 object-contain bg-slate-950 rounded-lg p-1 border border-slate-800 flex-shrink-0" 
@@ -73,14 +142,18 @@ export async function loadAdminProducts() {
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 self-end sm:self-center">
                         <a href="product.html?id=${id}" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1">
                             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                            پیشاندان
+                            <span>بینین</span>
                         </a>
-                        <button type="button" data-delete-id="${id}" class="btn-delete text-xs bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                        <button type="button" data-edit-id="${id}" class="btn-edit-item text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500 hover:text-slate-950 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>دەستکاری</span>
+                        </button>
+                        <button type="button" data-delete-id="${id}" class="btn-delete-item text-xs bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
                             <i class="fa-solid fa-trash"></i>
-                            سڕینەوە
+                            <span>سڕینەوە</span>
                         </button>
                     </div>
                 </div>
@@ -116,19 +189,10 @@ if (addForm) {
 
         let finalImageUrl = imageUrlVal;
 
-        // 1. If a file is selected, upload it to ImgBB API
+        // 1. Upload file to ImgBB API if selected
         if (file) {
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin ml-2"></i> لەبارکردنی وێنە بۆ ImgBB...';
-            }
-
-            if (IMGBB_API_KEY === "کۆدەکەی_خۆت_لێرە_دابنێ" || !IMGBB_API_KEY) {
-                alert("تکایە کلیلی API ی ImgBB لە دێڕی ١٧ی فایلی js/admin.js لە گۆڕاوی IMGBB_API_KEY دابنێ بۆ ئەوەی وێنەکان بار بکرێن.");
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                }
-                return;
             }
 
             try {
@@ -146,7 +210,6 @@ if (addForm) {
                     throw new Error(result.error?.message || 'کێشەیەک لە بارکردنی وێنە بۆ ImgBB ڕوویدا');
                 }
 
-                // Extract direct image URL from JSON response
                 finalImageUrl = result.data.url;
             } catch (imgbbError) {
                 console.error("Error uploading to ImgBB:", imgbbError);
@@ -159,12 +222,10 @@ if (addForm) {
             }
         }
 
-        // 2. Fallback to placeholder if no image file and no URL was provided
         if (!finalImageUrl) {
             finalImageUrl = 'assets/images/placeholder.png';
         }
 
-        // UI feedback during Firestore saving
         if (submitBtn) {
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-2"></i> لە پاشەکەوتکردندایە...';
         }
@@ -172,13 +233,14 @@ if (addForm) {
         const topNotesVal = document.getElementById('note_top').value.trim();
         const middleNotesVal = document.getElementById('note_middle').value.trim();
         const baseNotesVal = document.getElementById('note_base').value.trim();
+        const rawOilPrice = parseFloat(document.getElementById('price_raw').value) || 0;
 
         const newPerfume = {
             title: document.getElementById('title').value.trim(),
             brand: document.getElementById('brand').value.trim(),
             price_retail_100ml: parseFloat(document.getElementById('price_retail').value) || 0,
-            price_raw_oil_tola: parseFloat(document.getElementById('price_raw').value) || 0,
-            wholesale_per_kg: (parseFloat(document.getElementById('price_raw').value) || 0) * 10,
+            price_raw_oil_tola: rawOilPrice,
+            wholesale_per_kg: rawOilPrice * 10,
             gender: document.getElementById('gender').value,
             top_notes: topNotesVal ? topNotesVal.split(/[،,]/).map(s => s.trim()).filter(Boolean) : [],
             heart_notes: middleNotesVal ? middleNotesVal.split(/[،,]/).map(s => s.trim()).filter(Boolean) : [],
@@ -215,7 +277,7 @@ if (addForm) {
 // Delete Perfume by Document ID
 export async function deletePerfume(id) {
     if (!id) return;
-    if (confirm("دڵنیایت لە سڕینەوەی ئەم بەرهەمە لە داتابەیسی Firestore؟")) {
+    if (confirm("دڵنیایت لە ڕەشکردنەوەی ئەم بەرهەمە لە داتابەیسی Firestore؟")) {
         try {
             await deleteDoc(doc(db, "perfumes", id));
             await loadAdminProducts();
@@ -225,20 +287,159 @@ export async function deletePerfume(id) {
         }
     }
 }
-
-// Expose deletePerfume globally on window for inline handlers
 window.deletePerfume = deletePerfume;
 
-// Event Delegation for Delete Buttons on the List Container
+// Open Edit Modal for Admin
+function openAdminEditModal(id) {
+    const item = adminProductsCache.find(p => p.id === id);
+    if (!item || !editModal) return;
+
+    document.getElementById('admin-edit-id').value = id;
+    document.getElementById('admin-edit-title').value = item.title || '';
+    document.getElementById('admin-edit-brand').value = item.brand || '';
+    document.getElementById('admin-edit-price-retail').value = item.price_retail_100ml ?? item.price_retail ?? '';
+    document.getElementById('admin-edit-price-raw').value = item.wholesale_per_kg ? item.wholesale_per_kg / 10 : (item.price_raw_oil_tola || '');
+    document.getElementById('admin-edit-gender').value = item.gender || 'men';
+
+    const topNotes = Array.isArray(item.top_notes) ? item.top_notes.join('، ') : (item.notes?.top || item.top_notes || '');
+    const middleNotes = Array.isArray(item.heart_notes) ? item.heart_notes.join('، ') : (item.notes?.middle || item.heart_notes || '');
+    const baseNotes = Array.isArray(item.base_notes) ? item.base_notes.join('، ') : (item.notes?.base || item.base_notes || '');
+
+    document.getElementById('admin-edit-note-top').value = topNotes;
+    document.getElementById('admin-edit-note-middle').value = middleNotes;
+    document.getElementById('admin-edit-note-base').value = baseNotes;
+
+    document.getElementById('admin-edit-image-url').value = item.image || '';
+    const fileInput = document.getElementById('admin-edit-image-file');
+    if (fileInput) fileInput.value = '';
+
+    editModal.classList.remove('hidden');
+}
+
+// Setup Admin Edit Modal Events
+function setupAdminEditModal() {
+    if (!editModal) return;
+
+    if (closeEditBtn) {
+        closeEditBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+    }
+    if (editCancelBtn) {
+        editCancelBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+    }
+
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) editModal.classList.add('hidden');
+    });
+
+    if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const saveBtn = document.getElementById('admin-edit-save-btn');
+            const originalSaveBtnText = saveBtn ? saveBtn.innerHTML : '';
+            if (saveBtn) saveBtn.disabled = true;
+
+            const id = document.getElementById('admin-edit-id').value;
+            const fileInput = document.getElementById('admin-edit-image-file');
+            const file = fileInput?.files?.[0];
+            let finalImageUrl = document.getElementById('admin-edit-image-url').value.trim();
+
+            if (file) {
+                if (saveBtn) {
+                    saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin ml-1.5"></i> لەبارکردنی وێنە بۆ ImgBB...';
+                }
+                try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.error?.message || 'کێشە لە بارکردنی وێنە');
+                    }
+                    finalImageUrl = result.data.url;
+                } catch (uploadErr) {
+                    console.error("Error uploading to ImgBB during edit:", uploadErr);
+                    alert("کێشەیەک ڕوویدا لە بارکردنی وێنەکە بۆ ImgBB: " + (uploadErr.message || ''));
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalSaveBtnText;
+                    }
+                    return;
+                }
+            }
+
+            if (!finalImageUrl) finalImageUrl = 'assets/images/placeholder.png';
+
+            if (saveBtn) {
+                saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1.5"></i> لە پاشەکەوتکردندایە...';
+            }
+
+            const topNotesVal = document.getElementById('admin-edit-note-top').value.trim();
+            const middleNotesVal = document.getElementById('admin-edit-note-middle').value.trim();
+            const baseNotesVal = document.getElementById('admin-edit-note-base').value.trim();
+            const rawOilPrice = parseFloat(document.getElementById('admin-edit-price-raw').value) || 0;
+
+            const updatedData = {
+                title: document.getElementById('admin-edit-title').value.trim(),
+                brand: document.getElementById('admin-edit-brand').value.trim(),
+                price_retail_100ml: parseFloat(document.getElementById('admin-edit-price-retail').value) || 0,
+                price_raw_oil_tola: rawOilPrice,
+                wholesale_per_kg: rawOilPrice * 10,
+                gender: document.getElementById('admin-edit-gender').value,
+                top_notes: topNotesVal ? topNotesVal.split(/[،,]/).map(s => s.trim()).filter(Boolean) : [],
+                heart_notes: middleNotesVal ? middleNotesVal.split(/[،,]/).map(s => s.trim()).filter(Boolean) : [],
+                base_notes: baseNotesVal ? baseNotesVal.split(/[،,]/).map(s => s.trim()).filter(Boolean) : [],
+                notes: {
+                    top: topNotesVal,
+                    middle: middleNotesVal,
+                    base: baseNotesVal
+                },
+                image: finalImageUrl,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                await updateDoc(doc(db, "perfumes", id), updatedData);
+                alert("بۆنەکە بە سەرکەوتوویی دەستکاری کرا!");
+                editModal.classList.add('hidden');
+                await loadAdminProducts();
+            } catch (err) {
+                console.error("Error updating document:", err);
+                alert("کێشەیەک ڕوویدا لە کاتی پاشەکەوتکردنی گۆڕانکارییەکان: " + (err.message || ''));
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalSaveBtnText;
+                }
+            }
+        });
+    }
+}
+
+// Event Delegation for List Container Buttons (Delete & Edit)
 if (listContainer) {
     listContainer.addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('[data-delete-id]');
         if (deleteBtn) {
             const id = deleteBtn.getAttribute('data-delete-id');
             deletePerfume(id);
+            return;
+        }
+
+        const editBtn = e.target.closest('[data-edit-id]');
+        if (editBtn) {
+            const id = editBtn.getAttribute('data-edit-id');
+            openAdminEditModal(id);
         }
     });
 }
 
-// Initial Load
-document.addEventListener('DOMContentLoaded', loadAdminProducts);
+// Initial Load & Auth Check
+document.addEventListener('DOMContentLoaded', () => {
+    setupAuthGuard();
+    setupAdminEditModal();
+    checkAdminAuth();
+});
