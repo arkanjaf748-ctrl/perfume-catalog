@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دۆزینەوەی بۆنی گونجاو | بۆنی شاهانه</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Navbar -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-spray-can"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-lg text-amber-400 leading-tight">بۆنی شاهانه</h1>
+                    <p class="text-[10px] text-slate-400">ئامرازی زیرەکی دۆزینەوەی بۆن</p>
+                </div>
+            </a>
+            <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl border border-slate-700 transition">
+                <i class="fa-solid fa-arrow-right ml-1"></i> گەڕانەوە بۆ کاتالۆگ
+            </a>
+        </div>
+    </header>
+
+    <!-- Quiz Main Container -->
+    <main class="max-w-3xl mx-auto px-4 py-12 w-full flex-grow flex flex-col justify-center">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+            
+            <!-- Progress Bar -->
+            <div class="mb-8">
+                <div class="flex justify-between text-xs text-amber-400 font-bold mb-2" id="step-indicator">
+                    <span>هەنگاوی ۱ لە ۳</span>
+                    <span>دیاریکردنی ڕەگەز</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-amber-500 h-full w-1/3 transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <!-- Step 1: Gender -->
+            <div id="step-1" class="quiz-step space-y-6">
+                <h2 class="text-2xl font-black text-center text-slate-100">ئەم بۆنەی بەدوایدا دەگەڕێیت بۆ کێیە؟</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="selectOption('gender', 'men', 2)" class="p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex flex-col items-center gap-3 transition group">
+                        <i class="fa-solid fa-mars text-3xl text-amber-500/70 group-hover:scale-110 transition"></i>
+                        <span class="font-bold text-slate-200">پیاوانە</span>
+                    </button>
+                    <button onclick="selectOption('gender', 'women', 2)" class="p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex flex-col items-center gap-3 transition group">
+                        <i class="fa-solid fa-venus text-3xl text-amber-500/70 group-hover:scale-110 transition"></i>
+                        <span class="font-bold text-slate-200">ژنانە</span>
+                    </button>
+                    <button onclick="selectOption('gender', 'unisex', 2)" class="p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex flex-col items-center gap-3 transition group">
+                        <i class="fa-solid fa-venus-mars text-3xl text-amber-500/70 group-hover:scale-110 transition"></i>
+                        <span class="font-bold text-slate-200">هاوبەش (Unisex)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Season/Vibe -->
+            <div id="step-2" class="quiz-step hidden space-y-6">
+                <h2 class="text-2xl font-black text-center text-slate-100">زیاتر بۆ چ کاتێک یان کەشوهەوایەک دەتەوێت؟</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="selectOption('season', 'cold', 3)" class="p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex items-center gap-4 transition text-right group">
+                        <i class="fa-solid fa-snowflake text-3xl text-sky-400 group-hover:scale-110 transition"></i>
+                        <div>
+                            <h4 class="font-bold text-slate-100">زستان و کەشی سارد</h4>
+                            <p class="text-xs text-slate-400 mt-1">بۆنی گەرم، دارین و شیرین</p>
+                        </div>
+                    </button>
+                    <button onclick="selectOption('season', 'warm', 3)" class="p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex items-center gap-4 transition text-right group">
+                        <i class="fa-solid fa-sun text-3xl text-amber-400 group-hover:scale-110 transition"></i>
+                        <div>
+                            <h4 class="font-bold text-slate-100">هاوین و ڕۆژانە</h4>
+                            <p class="text-xs text-slate-400 mt-1">بۆنی فێنک، میوەیی و تازە</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Preference -->
+            <div id="step-3" class="quiz-step hidden space-y-6">
+                <h2 class="text-2xl font-black text-center text-slate-100">حەزت لە چ جۆرە ستایلێکە؟</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="finishQuiz('spicy')" class="p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex items-center gap-4 transition text-right group">
+                        <i class="fa-solid fa-fire text-3xl text-rose-500 group-hover:scale-110 transition"></i>
+                        <div>
+                            <h4 class="font-bold text-slate-100">قورس و بەهێز (Spicy / Oud)</h4>
+                            <p class="text-xs text-slate-400 mt-1">دیار و سەرنجڕاکێش بە مانەوەی بەرز</p>
+                        </div>
+                    </button>
+                    <button onclick="finishQuiz('sweet')" class="p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex items-center gap-4 transition text-right group">
+                        <i class="fa-solid fa-gem text-3xl text-amber-400 group-hover:scale-110 transition"></i>
+                        <div>
+                            <h4 class="font-bold text-slate-100">لوکس و شیرین (Amber / Sweet)</h4>
+                            <p class="text-xs text-slate-400 mt-1">ئارامکەرەوە، تایبەت و شاهانە</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step Results -->
+            <div id="step-results" class="quiz-step hidden space-y-6">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-black text-amber-400">ئەم بۆنانە بەتەواوی لەگەڵ زەوقی تۆ دەگونجێن!</h2>
+                    <p class="text-xs text-slate-400">بەپێی هەڵبژاردنەکانت، ئەم بەرهەمانەمان بۆ پێشنیار کردوویت:</p>
+                </div>
+
+                <div id="quiz-results-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <!-- Results dynamically added -->
+                </div>
+
+                <div class="text-center pt-6">
+                    <button onclick="resetQuiz()" class="text-xs text-amber-400 hover:underline">
+                        <i class="fa-solid fa-rotate-right ml-1"></i> سەرلەنوێ تاقیکردنەوە
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 بۆنی شاهانه - هەموو مافەکان پارێزراون</p>
+    </footer>
+
+    <script src="js/quiz.js"></script>
+</body>
+</html>

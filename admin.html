@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ئادمیین پانێڵ | بۆنی شاهانه</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center border-b border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-amber-400">ئادمیین پانێڵی بۆنی شاهانه</h1>
+                    <p class="text-xs text-slate-400">بەڕێوەبردنی بەرهەمەکان و کۆگا</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl transition">
+                <i class="fa-solid fa-eye ml-1"></i> بینینی وێبسایت
+            </a>
+        </header>
+
+        <!-- Form Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <h2 class="text-lg font-bold text-amber-400 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle"></i> زیادکردنی بۆنی نوێ
+            </h2>
+
+            <form id="add-perfume-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">ناوی بۆن</label>
+                        <input type="text" id="title" required placeholder="نموونە: Sauvage Elixir" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">مارکە / براند</label>
+                        <input type="text" id="brand" required placeholder="نموونە: Dior" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">نرخی ۱۰۰مل ($)</label>
+                        <input type="number" id="price_retail" required placeholder="140" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">نرخی زەیتی خاو ($)</label>
+                        <input type="number" id="price_raw" required placeholder="45" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">ڕەگەز</label>
+                        <select id="gender" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:border-amber-500 focus:outline-none text-slate-200">
+                            <option value="men">پیاوانە</option>
+                            <option value="women">ژنانە</option>
+                            <option value="unisex">هاوبەش (Unisex)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">نووتی سەرەوە</label>
+                        <input type="text" id="note_top" placeholder="دارچینی، هێل..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">نووتی ناوەڕاست</label>
+                        <input type="text" id="note_middle" placeholder="لاڤێندەر..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:border-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">نووتی بنچینە</label>
+                        <input type="text" id="note_base" placeholder="سەندەڵ، عەنبەر..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:border-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Image URL / Path -->
+                <div class="pt-2">
+                    <label class="block text-xs text-slate-300 mb-1">ڕێڕەوی وێنە (Image Path / URL)</label>
+                    <input type="text" id="image_url" required placeholder="assets/images/sauvage.png" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition mt-4">
+                    پاشەکەوتکردن و زیادکردن بۆ کاتالۆگ
+                </button>
+            </form>
+        </div>
+
+        <!-- Products List Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+            <h2 class="text-lg font-bold text-slate-200">بەرهەمە تۆمارکراوەکان</h2>
+            <div id="admin-products-list" class="divide-y divide-slate-800">
+                <!-- بەرهەمەکان لێرە بە شێوەی ئۆتۆماتیکی بار دەکرێن -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>
