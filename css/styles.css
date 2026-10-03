@@ -1,0 +1,116 @@
+/* ========================================================
+   کاتالۆگی بۆنی شاهانە - Global Custom Styles
+   Mobile Responsive & Animations
+======================================================== */
+
+/* Root & Typography */
+:root {
+    --color-amber-primary: #f59e0b;
+    --color-dark-bg: #020617;
+    --color-card-bg: #0f172a;
+}
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #090d16;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #f59e0b;
+}
+
+/* Modal Animations */
+.modal-backdrop {
+    animation: fadeIn 0.25s ease-out forwards;
+}
+
+.modal-content {
+    animation: slideUpScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUpScale {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Dropdown Animation */
+.admin-dropdown {
+    transform-origin: top left;
+    animation: dropdownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Mobile-Specific Responsive Tweaks */
+@media (max-width: 768px) {
+    /* Prevent overflow on small screens */
+    .mobile-full-width {
+        width: 100% !important;
+    }
+
+    /* Stack form controls cleanly in 1 column */
+    .responsive-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Compact header padding */
+    header {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    /* Ensure modals fit perfectly on small screens */
+    .modal-dialog {
+        margin: 0.75rem;
+        max-height: 92vh;
+        width: calc(100% - 1.5rem) !important;
+    }
+}
+
+/* Admin Badge Glow */
+.admin-badge {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+/* Card hover glow */
+.perfume-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.perfume-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(245, 158, 11, 0.1);
+}
